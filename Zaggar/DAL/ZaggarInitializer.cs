@@ -35,7 +35,7 @@ namespace Zaggar.DAL
             new Product{Name="Sleep Couch",Price=1045,VAT = 0.14},
             new Product{Name="Table",Price=3141,VAT = 0.14},
             new Product{Name="Stool",Price=202,VAT = 0.14},
-            new Product{Name="Bunk Bed",VAT = 0.14},
+            new Product{Name="Bunk Bed",Price=203,VAT = 0.14},
             new Product{Name="Bed",Price=1050,},
             new Product{Name="Head Board",Price=402,VAT = 0.14},
             new Product{Name="Mirror",Price=40,VAT = 0.14},
