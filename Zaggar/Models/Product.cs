@@ -16,9 +16,6 @@ namespace Zaggar.Models
         //[Column(TypeName = "money")]
         public double Price { get; set; }
 
-        [Display(Name = "Discount %")]
-        [RegularExpression(@"^\d+\.\d{0,2}$")]
-        [Range(0, 999.99)]
         public double VAT { get; set; }
     }
 }

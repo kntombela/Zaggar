@@ -30,7 +30,7 @@ namespace Zaggar.Models
         [Display(Name = "Discount %")]
         [RegularExpression(@"^\d+\.\d{0,2}$")]
         [Range(0, 999.99)]
-        public decimal Discount { get; set; }
+        public decimal? Discount { get; set; }
         public int CustomerID { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual ICollection<QuoteItem> QuoteItems { get; set; }

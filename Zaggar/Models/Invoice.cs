@@ -11,7 +11,7 @@ namespace Zaggar.Models
         public int InvoiceID { get; set; }
 
         [Display(Name = "Invoice Date")]
-        public DateTime InvoiceDate { get; set; }
+        public DateTime? InvoiceDate { get; set; }
         public int CustomerID { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
