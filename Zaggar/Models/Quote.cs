@@ -34,5 +34,7 @@ namespace Zaggar.Models
         public int CustomerID { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual ICollection<QuoteItem> QuoteItems { get; set; }
+
+
     }
 }

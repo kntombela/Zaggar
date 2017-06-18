@@ -10,6 +10,12 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 
+    <!-- DataTables CSS -->
+    <link href=@Url.Content("~/Content/DataTables/media/css/dataTables.bootstrap.css") rel="stylesheet" type="text/css" />
+
+
+
+
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -52,7 +58,7 @@
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="@Url.Action("Create", "Quotes")">Create New Quote</a></li>
                             <li class="divider"></li>
-                            <li><a href="@Url.Action("Index", "Products")">View All</a></li>
+                            <li><a href="@Url.Action("Index", "CustomerQuotes")">View All</a></li>
                             <li><a href="#">Edit</a></li>
                             <li><a href="#">Delete</a></li>
                         </ul>
@@ -83,6 +89,17 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+
+    <!-- DataTables JS -->
+    <script src=@Url.Content("~/Scripts/DataTables/media/js/jquery.dataTables.min.js")></script>
+    <script src=@Url.Content("~/Scripts/DataTables/media/js/dataTables.bootstrap.min.js")></script>
+
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+            $('#quoteTable').dataTable();
+        });
+    </script> 
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

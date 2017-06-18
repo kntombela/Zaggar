@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -40,7 +41,8 @@ namespace Zaggar.Controllers
         // GET: Quotes/Create
         public ActionResult Create()
         {
-            ViewBag.CustomerID = new SelectList(db.Customers, "CustomerID", "FirstName");
+            //ViewBag.CustomerID = new SelectList(db.Customers, "CustomerID", "FirstName");
+            PopulateCustomerDropDownList();
             return View();
         }
 
@@ -51,14 +53,22 @@ namespace Zaggar.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "QuoteID,QuoteDate,ExpiryDate,QuoteStatus,Discount,CustomerID")] Quote quote)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Quotes.Add(quote);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Quotes.Add(quote);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
-
-            ViewBag.CustomerID = new SelectList(db.Customers, "CustomerID", "FirstName", quote.CustomerID);
+            catch (RetryLimitExceededException /* dex */)
+            {
+                //Log the error (uncomment dex variable name and add a line here to write a log.)
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
+            
+            PopulateCustomerDropDownList(quote.CustomerID);
             return View(quote);
         }
 
@@ -74,25 +84,43 @@ namespace Zaggar.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.CustomerID = new SelectList(db.Customers, "CustomerID", "FirstName", quote.CustomerID);
+
+            PopulateCustomerDropDownList(quote.CustomerID);
             return View(quote);
         }
 
         // POST: Quotes/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "QuoteID,QuoteDate,ExpiryDate,QuoteStatus,Discount,CustomerID")] Quote quote)
+        public ActionResult EditPost(int? id)
         {
-            if (ModelState.IsValid)
+            //Checks if ID has been passed a parameter
+            if (id == null)
             {
-                db.Entry(quote).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ViewBag.CustomerID = new SelectList(db.Customers, "CustomerID", "FirstName", quote.CustomerID);
-            return View(quote);
+
+            //Bind model to update
+            var quoteToUpdate = db.Quotes.Find(id);
+            if (TryUpdateModel(quoteToUpdate, "",
+                    new string[] { "QuoteDate", "ExpiryDate", "QuoteStatus", "Discount", "CustomerID" }))
+            {
+                try
+                {
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+                catch (RetryLimitExceededException /* dex */)
+                {
+                    //Log the error (uncomment dex variable name and add a line here to write a log.
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                }
+            }
+            PopulateCustomerDropDownList(quoteToUpdate.CustomerID); ;
+            return View(quoteToUpdate);
         }
 
         // GET: Quotes/Delete/5
@@ -128,6 +156,20 @@ namespace Zaggar.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+
+        //Customer Functions TODO: Move to service classes
+        private void PopulateCustomerDropDownList(object selectedCustomer = null)
+        {
+            var customerQuery = db.Customers.OrderBy(c => c.LastName).ToList();
+            ViewBag.CustomerID = new SelectList(customerQuery, "CustomerID", "LastName", selectedCustomer);
+        }
+
+        private void PopulateProductDropDownList(object selectedProduct = null)
+        {
+            var productQuery = db.Products.ToList();
+            ViewBag.ProductID = new SelectList(productQuery, "ProductID", "Name", selectedProduct);
         }
     }
 }
